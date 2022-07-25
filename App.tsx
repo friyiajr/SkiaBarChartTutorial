@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {Easing, StyleSheet, View} from 'react-native';
+import {Button, Easing, StyleSheet, View} from 'react-native';
 
 import {
   Canvas,
@@ -100,6 +100,12 @@ const App = () => {
           ))}
         </Group>
       </Canvas>
+      <Button
+        title="Reanimate"
+        onPress={() => {
+          animateChart();
+        }}
+      />
     </View>
   );
 };
