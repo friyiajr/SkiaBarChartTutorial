@@ -1,9 +1,8 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {Button, Easing, StyleSheet, View} from 'react-native';
 
 import {
   Canvas,
-  Group,
   Path,
   runTiming,
   Skia,
@@ -17,24 +16,24 @@ import * as d3 from 'd3';
 const GRAPH_MARGIN = 20;
 const GRAPH_BAR_WIDTH = 8;
 
-const SVGHeight = 350;
-const SVGWidth = 350;
-const graphHeight = SVGHeight - 2 * GRAPH_MARGIN;
-const graphWidth = SVGWidth - 2;
+const CanvasHeight = 350;
+const CanvasWidth = 350;
+const graphHeight = CanvasHeight - 2 * GRAPH_MARGIN;
+const graphWidth = CanvasWidth - 2;
 
 const data = [
-  {label: 'Jan', value: 500},
-  {label: 'Feb', value: 312},
-  {label: 'Mar', value: 424},
-  {label: 'Apr', value: 745},
-  {label: 'May', value: 89},
-  {label: 'Jun', value: 434},
-  {label: 'Jul', value: 650},
-  {label: 'Aug', value: 980},
-  {label: 'Sep', value: 123},
-  {label: 'Oct', value: 186},
-  {label: 'Nov', value: 689},
-  {label: 'Dec', value: 643},
+  {label: 'Jan', value: 50},
+  {label: 'Feb', value: 100},
+  {label: 'Mar', value: 350},
+  {label: 'Apr', value: 200},
+  {label: 'May', value: 550},
+  {label: 'Jun', value: 300},
+  {label: 'Jul', value: 150},
+  {label: 'Aug', value: 400},
+  {label: 'Sep', value: 450},
+  {label: 'Oct', value: 500},
+  {label: 'Nov', value: 250},
+  {label: 'Dec', value: 600},
 ];
 
 const App = () => {
@@ -46,14 +45,10 @@ const App = () => {
     chartCompleted.current = 0;
 
     runTiming(chartCompleted, 1, {
-      duration: 1600,
+      duration: 1250,
       easing: Easing.inOut(Easing.exp),
     });
   }, [chartCompleted]);
-
-  useEffect(() => {
-    animateChart();
-  }, [animateChart]);
 
   const xDomain = data.map(item => item.label);
   const xRange = [0, graphWidth];
@@ -73,7 +68,8 @@ const App = () => {
         GRAPH_BAR_WIDTH,
         y(item.value * chartCompleted.current) * -1,
       );
-      path.addRect(rect);
+      const roundedRect = Skia.RRectXY(rect, 8, 8);
+      path.addRRect(roundedRect);
     });
 
     return path;
@@ -87,21 +83,18 @@ const App = () => {
     <View style={styles.container}>
       <Canvas style={styles.canvas}>
         <Path path={myPath} color="purple" />
-
-        <Group>
-          {data.map(item => (
-            <Text
-              key={item.label}
-              font={font}
-              x={x(item.label) - 10}
-              y={SVGHeight - 25}
-              text={item.label}
-            />
-          ))}
-        </Group>
+        {data.map(item => (
+          <Text
+            key={item.label}
+            font={font}
+            x={x(item.label) - 10}
+            y={CanvasHeight - 25}
+            text={item.label}
+          />
+        ))}
       </Canvas>
       <Button
-        title="Reanimate"
+        title="Animate !"
         onPress={() => {
           animateChart();
         }}
@@ -117,8 +110,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   canvas: {
-    width: SVGWidth,
-    height: SVGHeight,
+    width: CanvasWidth,
+    height: CanvasHeight,
   },
 });
 
