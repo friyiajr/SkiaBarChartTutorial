@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Easing, StyleSheet, View} from 'react-native';
 
 import {
   Canvas,
+  Group,
   Path,
   runTiming,
   Skia,
@@ -16,8 +17,8 @@ import * as d3 from 'd3';
 const GRAPH_MARGIN = 20;
 const GRAPH_BAR_WIDTH = 8;
 
-const SVGHeight = 300;
-const SVGWidth = 300;
+const SVGHeight = 350;
+const SVGWidth = 350;
 const graphHeight = SVGHeight - 2 * GRAPH_MARGIN;
 const graphWidth = SVGWidth - 2;
 
@@ -41,18 +42,18 @@ const App = () => {
 
   const font = useFont(require('./Roboto-Bold.ttf'), 10);
 
-  const animateChart = () => {
+  const animateChart = useCallback(() => {
     chartCompleted.current = 0;
 
-    runTiming(chartCompleted, SVGHeight, {
+    runTiming(chartCompleted, 1, {
       duration: 1600,
       easing: Easing.inOut(Easing.exp),
     });
-  };
+  }, [chartCompleted]);
 
   useEffect(() => {
     animateChart();
-  }, []);
+  }, [animateChart]);
 
   const xDomain = data.map(item => item.label);
   const xRange = [0, graphWidth];
@@ -64,15 +65,17 @@ const App = () => {
 
   const myPath = useComputedValue(() => {
     const path = Skia.Path.Make();
+
     data.map(item => {
       const rect = Skia.XYWHRect(
         x(item.label) - GRAPH_BAR_WIDTH / 2,
-        y(item.value) + SVGHeight - chartCompleted.current,
+        graphHeight,
         GRAPH_BAR_WIDTH,
-        SVGHeight,
+        y(item.value * chartCompleted.current) * -1,
       );
       path.addRect(rect);
     });
+
     return path;
   }, [chartCompleted]);
 
@@ -84,14 +87,18 @@ const App = () => {
     <View style={styles.container}>
       <Canvas style={styles.canvas}>
         <Path path={myPath} color="purple" />
-        {data.map(item => (
-          <Text
-            font={font}
-            x={x(item.label) - 10}
-            y={SVGHeight}
-            text={item.label}
-          />
-        ))}
+
+        <Group>
+          {data.map(item => (
+            <Text
+              key={item.label}
+              font={font}
+              x={x(item.label) - 10}
+              y={SVGHeight - 25}
+              text={item.label}
+            />
+          ))}
+        </Group>
       </Canvas>
     </View>
   );
